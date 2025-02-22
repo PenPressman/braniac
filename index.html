@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Match Game</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+            background-color: black;
+            color: white;
+        }
+        h1, #score {
+            color: limegreen;
+            transition: color 0.5s ease;
+            font-size: 2em;
+            color: hotpink;
+        }
+        #game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 80px);
+            gap: 10px;
+            justify-content: center;
+            margin: 20px auto;
+        }
+        .circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: black;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Quick Clicks</h1>
+    <p style="font-size: 1em; color: hotpink; max-width: 400px; margin: 0 auto; line-height: 1.5;">Instructions:<br>Click the matching colored circles before they change!<br>Make sure to click the smaller number in each pair first.</p>
+    <div id="score">Score: 0</div>
+    <div id="game-board"></div>
+    <script>
+        const colors = ["red", "blue", "green", "yellow", "purple", "orange", "cyan", "magenta"];
+        let board = document.getElementById("game-board");
+        let scoreDisplay = document.getElementById("score");
+        let score = 0;
+        let selectedCircles = [];
+        
+        function generateBoard() {
+            let colorPairs = [...colors, ...colors].sort(() => Math.random() - 0.5);
+            let numberPairs = [];
+            colors.forEach(() => {
+                let num1 = Math.floor(Math.random() * 10);
+                let num2;
+                do {
+                    num2 = Math.floor(Math.random() * 10);
+                } while (num1 === num2);
+                numberPairs.push(num1, num2);
+            });
+            numberPairs.sort(() => Math.random() - 0.5);
+            board.innerHTML = "";
+            colorPairs.forEach((color, index) => {
+                let circle = document.createElement("div");
+                circle.classList.add("circle");
+                circle.style.backgroundColor = color;
+                circle.dataset.color = color;
+                circle.dataset.number = numberPairs[index];
+                circle.textContent = numberPairs[index];
+                circle.addEventListener("click", () => selectCircle(circle));
+                board.appendChild(circle);
+            });
+        }
+        
+        function selectCircle(circle) {
+            if (selectedCircles.includes(circle)) return;
+            selectedCircles.push(circle);
+            if (selectedCircles.length === 2) {
+                selectedCircles.sort((a, b) => a.dataset.number - b.dataset.number);
+                if (selectedCircles[0].dataset.color === selectedCircles[1].dataset.color && selectedCircles[0].dataset.number < selectedCircles[1].dataset.number) {
+                    score++;
+                    scoreDisplay.style.color = 'hotpink';
+                    scoreDisplay.textContent = "Score: " + score;
+                } else {
+                    score--;
+                    scoreDisplay.style.color = 'red';
+                    scoreDisplay.textContent = "Score: " + score;
+                }
+                selectedCircles = [];
+            }
+        }
+        
+        function shuffleColors() {
+            let circles = document.querySelectorAll(".circle");
+            let colorPairs = [...colors, ...colors].sort(() => Math.random() - 0.5);
+            circles.forEach((circle, index) => {
+                circle.style.backgroundColor = colorPairs[index];
+                circle.dataset.color = colorPairs[index];
+            });
+            selectedCircles = [];
+        }
+        
+        generateBoard();
+        setInterval(shuffleColors, 2000);
+    </script>
+</body>
+</html>
